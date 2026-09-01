@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>SIYUL HOCKEY</title>
     <style>
@@ -45,7 +45,7 @@
         font-size: 2.5rem;
         color: #00ffcc;
         text-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
-        margin-bottom: 20px;
+        margin-bottom: 25px;
         letter-spacing: 3px;
       }
       .menu-btn {
@@ -54,7 +54,7 @@
         color: #0b1a24;
         font-size: 1.1rem;
         font-weight: bold;
-        padding: 12px 35px;
+        padding: 14px 35px;
         margin: 8px;
         border-radius: 30px;
         cursor: pointer;
@@ -64,7 +64,7 @@
         transform: scale(0.95);
       }
 
-      /* 게임 플레이 화면 (상단 UI + 하단 가로형 캔버스 구조) */
+      /* 게임 플레이 화면 (모바일 세로형 꽉참 최적화) */
       #gameScreen {
         display: none;
         flex-direction: column;
@@ -72,39 +72,35 @@
         justify-content: center;
         width: 100%;
         height: 100%;
-        padding: 5px;
+        padding: 10px;
         position: relative;
       }
 
-      /* 중앙 상단 헤더 컨테이너 (제목, 버튼, 점수판) */
-      #topHeader {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        margin-bottom: 6px;
-        z-index: 5;
+      /* 모바일 화면 크기에 꽉 차도록 캔버스 최대 크기 설정 */
+      canvas {
+        background: #002b36;
+        border: 4px solid #00ffcc;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+        width: 95vw;
+        height: 82vh;
+        max-width: 480px;
+        object-fit: contain;
       }
 
-      h1.game-title {
-        margin: 0;
-        font-size: 1rem;
-        letter-spacing: 2px;
-        color: #00ffcc;
-        text-align: center;
-      }
-
-      #gameTopControls {
+      /* 게임 중 상단 미니 컨트롤 바 (메인화면, 다시하기) */
+      #inGameTopBar {
         display: flex;
-        gap: 8px;
+        gap: 10px;
+        margin-bottom: 8px;
       }
       .control-btn {
         background: #222;
         color: #00ffcc;
         border: 1px solid #00ffcc;
-        padding: 3px 10px;
-        border-radius: 8px;
-        font-size: 0.65rem;
+        padding: 5px 14px;
+        border-radius: 10px;
+        font-size: 0.75rem;
         font-weight: bold;
         cursor: pointer;
       }
@@ -113,32 +109,11 @@
         color: #111;
       }
 
-      #scoreboard {
-        font-size: 0.85rem;
-        font-weight: bold;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 3px 15px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        text-align: center;
-      }
-
-      /* 가로모드 최적화 캔버스 크기 */
-      canvas {
-        background: #002b36;
-        border: 3px solid #00ffcc;
-        border-radius: 6px;
-        box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
-        max-width: 95vw;
-        max-height: 75vh;
-        object-fit: contain;
-      }
-
       #instructions {
-        font-size: 0.55rem;
+        margin-top: 6px;
+        font-size: 0.7rem;
         color: #aaa;
         text-align: center;
-        margin-top: 3px;
       }
 
       /* 승리 결과 오버레이 화면 */
@@ -156,7 +131,7 @@
         z-index: 20;
       }
       #winnerText {
-        font-size: 2.2rem;
+        font-size: 2.5rem;
         font-weight: bold;
         margin-bottom: 20px;
         letter-spacing: 2px;
@@ -190,25 +165,13 @@
     </div>
 
     <div id="gameScreen">
-      <div id="topHeader">
-        <h1 class="game-title">SIYUL HOCKEY</h1>
-        <div id="gameTopControls">
-          <button class="control-btn" onclick="restartGame()">다시하기</button>
-          <button class="control-btn" onclick="returnToMenu()">
-            메인 화면
-          </button>
-        </div>
-        <div id="scoreboard">
-          <span style="color: #ff3333">RED</span> <span id="redScore">0</span> :
-          <span id="blueScore">0</span>
-          <span style="color: #00ffcc">BLUE</span> (5점 선취)
-        </div>
+      <div id="inGameTopBar">
+        <button class="control-btn" onclick="restartGame()">다시하기</button>
+        <button class="control-btn" onclick="returnToMenu()">메인 화면</button>
       </div>
 
-      <canvas id="gameCanvas" width="800" height="450"></canvas>
-      <div id="instructions">
-        좌측 영역: BLUE 팀 | 우측 영역: RED 팀 (스마트폰 가로모드 최적화)
-      </div>
+      <canvas id="gameCanvas" width="400" height="700"></canvas>
+      <div id="instructions">하단: BLUE | 상단: RED (5점 선취 승리)</div>
 
       <div id="gameOverScreen">
         <div id="winnerText">BLUE 승리!</div>
@@ -230,9 +193,6 @@
       const winnerText = document.getElementById("winnerText");
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
-
-      const redScoreEl = document.getElementById("redScore");
-      const blueScoreEl = document.getElementById("blueScore");
 
       let gameMode = 1;
       let gameRunning = false;
@@ -301,30 +261,30 @@
         y: canvas.height / 2,
         radius: 12,
         speed: 9,
-        velocityX: 6,
-        velocityY: (Math.random() - 0.5) * 4,
+        velocityX: 0,
+        velocityY: 8,
         color: "#ffea00",
       };
 
       const bluePlayer = {
-        // 좌측 (BLUE 팀)
-        x: 60,
-        y: canvas.height / 2,
-        radius: 25,
+        // 하단 (BLUE 팀)
+        x: canvas.width / 2,
+        y: canvas.height - 80,
+        radius: 26,
         color: "#00ffcc",
-        targetX: 60,
-        targetY: canvas.height / 2,
+        targetX: canvas.width / 2,
+        targetY: canvas.height - 80,
       };
 
       const redPlayer = {
-        // 우측 (RED 팀)
-        x: canvas.width - 60,
-        y: canvas.height / 2,
-        radius: 25,
-        speed: 4.8,
+        // 상단 (RED 팀)
+        x: canvas.width / 2,
+        y: 100,
+        radius: 26,
+        speed: 5.2,
         color: "#ff3333",
-        targetX: canvas.width - 60,
-        targetY: canvas.height / 2,
+        targetX: canvas.width / 2,
+        targetY: 100,
       };
 
       function startGame(mode) {
@@ -332,8 +292,6 @@
         gameMode = mode;
         redScore = 0;
         blueScore = 0;
-        redScoreEl.textContent = "0";
-        blueScoreEl.textContent = "0";
 
         gameOverScreen.style.display = "none";
         menuScreen.style.display = "none";
@@ -376,21 +334,21 @@
         let x = (clientX - rect.left) * scaleX;
         let y = (clientY - rect.top) * scaleY;
 
-        if (y < bluePlayer.radius) y = bluePlayer.radius;
-        if (y > canvas.height - bluePlayer.radius)
-          y = canvas.height - bluePlayer.radius;
+        if (x < bluePlayer.radius) x = bluePlayer.radius;
+        if (x > canvas.width - bluePlayer.radius)
+          x = canvas.width - bluePlayer.radius;
 
-        if (x <= canvas.width / 2) {
-          if (x < bluePlayer.radius) x = bluePlayer.radius;
-          if (x > canvas.width / 2 - bluePlayer.radius)
-            x = canvas.width / 2 - bluePlayer.radius;
+        if (y >= canvas.height / 2) {
+          if (y < canvas.height / 2 + bluePlayer.radius)
+            y = canvas.height / 2 + bluePlayer.radius;
+          if (y > canvas.height - bluePlayer.radius)
+            y = canvas.height - bluePlayer.radius;
           bluePlayer.targetX = x;
           bluePlayer.targetY = y;
         } else if (gameMode === 2) {
-          if (x < canvas.width / 2 + redPlayer.radius)
-            x = canvas.width / 2 + redPlayer.radius;
-          if (x > canvas.width - redPlayer.radius)
-            x = canvas.width - redPlayer.radius;
+          if (y < 40 + redPlayer.radius) y = 40 + redPlayer.radius; // 상단 점수판 영역 보호
+          if (y > canvas.height / 2 - redPlayer.radius)
+            y = canvas.height / 2 - redPlayer.radius;
           redPlayer.targetX = x;
           redPlayer.targetY = y;
         }
@@ -434,7 +392,7 @@
             puck.velocityX * puck.velocityX + puck.velocityY * puck.velocityY,
           );
 
-          const newSpeed = Math.min(speed + 2.5, 16);
+          const newSpeed = Math.min(speed + 2.5, 17);
           puck.velocityX = Math.cos(angle) * newSpeed;
           puck.velocityY = Math.sin(angle) * newSpeed;
 
@@ -454,19 +412,17 @@
         bluePlayer.y += (bluePlayer.targetY - bluePlayer.y) * 0.35;
 
         if (gameMode === 1) {
-          if (puck.x > canvas.width / 2) {
-            if (redPlayer.y < puck.y) redPlayer.y += redPlayer.speed;
-            if (redPlayer.y > puck.y) redPlayer.y -= redPlayer.speed;
+          if (puck.y < canvas.height / 2) {
+            if (redPlayer.x < puck.x) redPlayer.x += redPlayer.speed;
+            if (redPlayer.x > puck.x) redPlayer.x -= redPlayer.speed;
           } else {
-            if (redPlayer.y < canvas.height / 2) redPlayer.y += redPlayer.speed;
-            if (redPlayer.y > canvas.height / 2) redPlayer.y -= redPlayer.speed;
+            if (redPlayer.x < canvas.width / 2) redPlayer.x += redPlayer.speed;
+            if (redPlayer.x > canvas.width / 2) redPlayer.x -= redPlayer.speed;
           }
-          if (redPlayer.y < redPlayer.radius) redPlayer.y = redPlayer.radius;
-          if (redPlayer.y > canvas.height - redPlayer.radius)
-            redPlayer.y = canvas.height - redPlayer.radius;
-
-          if (redPlayer.x < canvas.width - 100)
-            redPlayer.x = canvas.width - 100;
+          if (redPlayer.x < redPlayer.radius) redPlayer.x = redPlayer.radius;
+          if (redPlayer.x > canvas.width - redPlayer.radius)
+            redPlayer.x = canvas.width - redPlayer.radius;
+          if (redPlayer.y < 50) redPlayer.y = 50;
         } else {
           redPlayer.x += (redPlayer.targetX - redPlayer.x) * 0.35;
           redPlayer.y += (redPlayer.targetY - redPlayer.y) * 0.35;
@@ -475,45 +431,43 @@
         puck.x += puck.velocityX;
         puck.y += puck.velocityY;
 
-        if (puck.y - puck.radius < 0) {
-          puck.y = puck.radius;
-          puck.velocityY *= -1;
-          playSound("wall");
-        } else if (puck.y + puck.radius > canvas.height) {
-          puck.y = canvas.height - puck.radius;
-          puck.velocityY *= -1;
-          playSound("wall");
-        }
-
-        const goalTop = canvas.height / 2 - 60;
-        const goalBottom = canvas.height / 2 + 60;
-
         if (puck.x - puck.radius < 0) {
-          if (puck.y > goalTop && puck.y < goalBottom) {
-            redScore++;
-            redScoreEl.textContent = redScore;
-            playSound("goal");
-            triggerShake(10, 20);
-            checkWinCondition();
-            if (gameRunning) resetPuck("blue");
-          } else {
-            puck.x = puck.radius;
-            puck.velocityX *= -1;
-            playSound("wall");
-          }
+          puck.x = puck.radius;
+          puck.velocityX *= -1;
+          playSound("wall");
+        } else if (puck.x + puck.radius > canvas.width) {
+          puck.x = canvas.width - puck.radius;
+          puck.velocityX *= -1;
+          playSound("wall");
         }
 
-        if (puck.x + puck.radius > canvas.width) {
-          if (puck.y > goalTop && puck.y < goalBottom) {
+        const goalLeft = canvas.width / 2 - 60;
+        const goalRight = canvas.width / 2 + 60;
+
+        if (puck.y - puck.radius < 0) {
+          if (puck.x > goalLeft && puck.x < goalRight) {
             blueScore++;
-            blueScoreEl.textContent = blueScore;
             playSound("goal");
             triggerShake(10, 20);
             checkWinCondition();
             if (gameRunning) resetPuck("red");
           } else {
-            puck.x = canvas.width - puck.radius;
-            puck.velocityX *= -1;
+            puck.y = puck.radius;
+            puck.velocityY *= -1;
+            playSound("wall");
+          }
+        }
+
+        if (puck.y + puck.radius > canvas.height) {
+          if (puck.x > goalLeft && puck.x < goalRight) {
+            redScore++;
+            playSound("goal");
+            triggerShake(10, 20);
+            checkWinCondition();
+            if (gameRunning) resetPuck("blue");
+          } else {
+            puck.y = canvas.height - puck.radius;
+            puck.velocityY *= -1;
             playSound("wall");
           }
         }
@@ -536,8 +490,8 @@
       function resetPuck(lastScorer) {
         puck.x = canvas.width / 2;
         puck.y = canvas.height / 2;
-        puck.velocityX = lastScorer === "blue" ? -7 : 7;
-        puck.velocityY = (Math.random() - 0.5) * 6;
+        puck.velocityX = (Math.random() - 0.5) * 6;
+        puck.velocityY = lastScorer === "blue" ? -7 : 7;
       }
 
       function draw() {
@@ -552,41 +506,65 @@
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+        // 링크 테두리 및 중앙선
         ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
         ctx.lineWidth = 4;
 
         ctx.beginPath();
-        ctx.moveTo(canvas.width / 2, 0);
-        ctx.lineTo(canvas.width / 2, canvas.height);
+        ctx.moveTo(0, canvas.height / 2);
+        ctx.lineTo(canvas.width, canvas.height / 2);
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.arc(canvas.width / 2, canvas.height / 2, 50, 0, Math.PI * 2);
+        ctx.arc(canvas.width / 2, canvas.height / 2, 55, 0, Math.PI * 2);
         ctx.stroke();
 
-        ctx.strokeStyle = "#00ffcc";
+        // 위쪽 골대 (RED 팀 골대)
+        ctx.strokeStyle = "#ff3333";
         ctx.lineWidth = 6;
         ctx.beginPath();
-        ctx.moveTo(0, canvas.height / 2 - 60);
-        ctx.lineTo(0, canvas.height / 2 + 60);
+        ctx.moveTo(canvas.width / 2 - 60, 0);
+        ctx.lineTo(canvas.width / 2 + 60, 0);
         ctx.stroke();
 
-        ctx.strokeStyle = "#ff3333";
+        // 아래쪽 골대 (BLUE 팀 골대)
+        ctx.strokeStyle = "#00ffcc";
         ctx.beginPath();
-        ctx.moveTo(canvas.width, canvas.height / 2 - 60);
-        ctx.lineTo(canvas.width, canvas.height / 2 + 60);
+        ctx.moveTo(canvas.width / 2 - 60, canvas.height);
+        ctx.lineTo(canvas.width / 2 + 60, canvas.height);
         ctx.stroke();
 
-        ctx.fillStyle = bluePlayer.color;
-        ctx.beginPath();
-        ctx.arc(bluePlayer.x, bluePlayer.y, bluePlayer.radius, 0, Math.PI * 2);
-        ctx.fill();
+        // [추가됨] 맵 내부 상단에 위치한 사각형 점수판 디자인
+        ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+        ctx.fillRect(canvas.width / 2 - 95, 12, 190, 32);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(canvas.width / 2 - 95, 12, 190, 32);
 
+        ctx.font = "bold 16px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        ctx.fillStyle = "#ff3333";
+        ctx.fillText("RED", canvas.width / 2 - 60, 28);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText(`${redScore} : ${blueScore}`, canvas.width / 2, 28);
+        ctx.fillStyle = "#00ffcc";
+        ctx.fillText("BLUE", canvas.width / 2 + 60, 28);
+
+        // RED 패들 (상단)
         ctx.fillStyle = redPlayer.color;
         ctx.beginPath();
         ctx.arc(redPlayer.x, redPlayer.y, redPlayer.radius, 0, Math.PI * 2);
         ctx.fill();
 
+        // BLUE 패들 (하단)
+        ctx.fillStyle = bluePlayer.color;
+        ctx.beginPath();
+        ctx.arc(bluePlayer.x, bluePlayer.y, bluePlayer.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 노란색 퍽 (공)
         ctx.fillStyle = puck.color;
         ctx.shadowBlur = 15;
         ctx.shadowColor = puck.color;
