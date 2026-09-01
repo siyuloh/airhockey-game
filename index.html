@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>SIYUL HOCKEY</title>
+    <title>아케이드 에어하키</title>
     <style>
       * {
         box-sizing: border-box;
@@ -21,28 +21,31 @@
         color: #fff;
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
-        justify-content: center;
+        justify-content: center; /* 컴퓨터 중앙 정렬 */
         height: 100vh;
         height: 100dvh;
         overflow: hidden;
+        gap: 20px; /* 게임판과 우측 사이드바 사이 간격 */
       }
 
-      /* 메인 메뉴 화면 */
+      /* 메인 화면 스타일 */
       #menuScreen {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
         height: 100%;
         background: rgba(11, 26, 36, 0.95);
         z-index: 10;
       }
       #menuScreen h1 {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         color: #00ffcc;
         text-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
         margin-bottom: 25px;
@@ -59,59 +62,82 @@
         border-radius: 30px;
         cursor: pointer;
         box-shadow: 0 4px 15px rgba(0, 255, 204, 0.3);
+        transition: transform 0.1s;
       }
       .menu-btn:active {
         transform: scale(0.95);
       }
 
-      /* 게임 플레이 화면 (모바일 세로형 꽉참 최적화) */
+      /* 게임 플레이 화면 스타일 (중앙 배치) */
       #gameScreen {
         display: none;
-        flex-direction: column;
+        flex-direction: row;
         align-items: center;
         justify-content: center;
-        width: 100%;
-        height: 100%;
-        padding: 10px;
+        gap: 15px;
         position: relative;
       }
 
-      /* 모바일 화면 크기에 꽉 차도록 캔버스 최대 크기 설정 */
+      /* 캔버스 맵 스타일 */
       canvas {
         background: #002b36;
-        border: 4px solid #00ffcc;
-        border-radius: 10px;
-        box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
-        width: 95vw;
-        height: 82vh;
-        max-width: 480px;
+        border: 3px solid #00ffcc;
+        border-radius: 6px;
+        box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+        max-height: 85vh;
         object-fit: contain;
       }
 
-      /* 게임 중 상단 미니 컨트롤 바 (메인화면, 다시하기) */
-      #inGameTopBar {
+      /* 맵 오른쪽 옆에 세로로 배치될 사이드바 (점수판 + 메인화면/다시하기 버튼) */
+      #rightSidebar {
         display: flex;
-        gap: 10px;
-        margin-bottom: 8px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        background: rgba(0, 43, 54, 0.7);
+        border: 2px solid #00ffcc;
+        padding: 20px 15px;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
       }
+
       .control-btn {
         background: #222;
         color: #00ffcc;
         border: 1px solid #00ffcc;
-        padding: 5px 14px;
+        padding: 10px 15px;
         border-radius: 10px;
-        font-size: 0.75rem;
+        font-size: 0.85rem;
         font-weight: bold;
         cursor: pointer;
+        width: 100px;
+        text-align: center;
+        transition: background 0.1s;
       }
-      .control-btn:active {
+      .control-btn:active,
+      .control-btn:hover {
         background: #00ffcc;
         color: #111;
       }
 
+      #scoreboard {
+        font-size: 1.1rem;
+        font-weight: bold;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100px;
+      }
+
       #instructions {
-        margin-top: 6px;
-        font-size: 0.7rem;
+        margin-top: 4px;
+        font-size: 0.65rem;
         color: #aaa;
         text-align: center;
       }
@@ -131,7 +157,7 @@
         z-index: 20;
       }
       #winnerText {
-        font-size: 2.5rem;
+        font-size: 2.2rem;
         font-weight: bold;
         margin-bottom: 20px;
         letter-spacing: 2px;
@@ -139,15 +165,15 @@
       }
       .overlay-btn-group {
         display: flex;
-        gap: 15px;
+        gap: 12px;
       }
       .overlay-btn {
         background: linear-gradient(135deg, #00ffcc, #0088cc);
         border: none;
         color: #0b1a24;
-        font-size: 1rem;
+        font-size: 0.95rem;
         font-weight: bold;
-        padding: 10px 25px;
+        padding: 10px 22px;
         border-radius: 18px;
         cursor: pointer;
       }
@@ -159,19 +185,28 @@
   </head>
   <body>
     <div id="menuScreen">
-      <h1>SIYUL HOCKEY</h1>
+      <h1>AIR HOCKEY</h1>
       <button class="menu-btn" onclick="startGame(1)">게임 시작 (1P)</button>
       <button class="menu-btn" onclick="startGame(2)">게임 시작 (2P)</button>
     </div>
 
     <div id="gameScreen">
-      <div id="inGameTopBar">
-        <button class="control-btn" onclick="restartGame()">다시하기</button>
-        <button class="control-btn" onclick="returnToMenu()">메인 화면</button>
+      <div>
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        <div id="instructions">하단: BLUE | 상단: RED (5점 선취 승리)</div>
       </div>
 
-      <canvas id="gameCanvas" width="400" height="700"></canvas>
-      <div id="instructions">하단: BLUE | 상단: RED (5점 선취 승리)</div>
+      <div id="rightSidebar">
+        <button class="control-btn" onclick="returnToMenu()">메인 화면</button>
+        <div id="scoreboard">
+          <span style="color: #ff3333">RED</span>
+          <span id="redScore">0</span>
+          <span style="font-size: 0.8rem; color: #888">VS</span>
+          <span id="blueScore">0</span>
+          <span style="color: #00ffcc">BLUE</span>
+        </div>
+        <button class="control-btn" onclick="restartGame()">다시하기</button>
+      </div>
 
       <div id="gameOverScreen">
         <div id="winnerText">BLUE 승리!</div>
@@ -193,6 +228,9 @@
       const winnerText = document.getElementById("winnerText");
       const canvas = document.getElementById("gameCanvas");
       const ctx = canvas.getContext("2d");
+
+      const redScoreEl = document.getElementById("redScore");
+      const blueScoreEl = document.getElementById("blueScore");
 
       let gameMode = 1;
       let gameRunning = false;
@@ -267,24 +305,22 @@
       };
 
       const bluePlayer = {
-        // 하단 (BLUE 팀)
         x: canvas.width / 2,
-        y: canvas.height - 80,
-        radius: 26,
+        y: canvas.height - 60,
+        radius: 25,
         color: "#00ffcc",
         targetX: canvas.width / 2,
-        targetY: canvas.height - 80,
+        targetY: canvas.height - 60,
       };
 
       const redPlayer = {
-        // 상단 (RED 팀)
         x: canvas.width / 2,
-        y: 100,
-        radius: 26,
-        speed: 5.2,
+        y: 60,
+        radius: 25,
+        speed: 4.8,
         color: "#ff3333",
         targetX: canvas.width / 2,
-        targetY: 100,
+        targetY: 60,
       };
 
       function startGame(mode) {
@@ -292,6 +328,8 @@
         gameMode = mode;
         redScore = 0;
         blueScore = 0;
+        redScoreEl.textContent = "0";
+        blueScoreEl.textContent = "0";
 
         gameOverScreen.style.display = "none";
         menuScreen.style.display = "none";
@@ -346,7 +384,7 @@
           bluePlayer.targetX = x;
           bluePlayer.targetY = y;
         } else if (gameMode === 2) {
-          if (y < 40 + redPlayer.radius) y = 40 + redPlayer.radius; // 상단 점수판 영역 보호
+          if (y < redPlayer.radius) y = redPlayer.radius;
           if (y > canvas.height / 2 - redPlayer.radius)
             y = canvas.height / 2 - redPlayer.radius;
           redPlayer.targetX = x;
@@ -392,7 +430,7 @@
             puck.velocityX * puck.velocityX + puck.velocityY * puck.velocityY,
           );
 
-          const newSpeed = Math.min(speed + 2.5, 17);
+          const newSpeed = Math.min(speed + 2.5, 16);
           puck.velocityX = Math.cos(angle) * newSpeed;
           puck.velocityY = Math.sin(angle) * newSpeed;
 
@@ -422,7 +460,6 @@
           if (redPlayer.x < redPlayer.radius) redPlayer.x = redPlayer.radius;
           if (redPlayer.x > canvas.width - redPlayer.radius)
             redPlayer.x = canvas.width - redPlayer.radius;
-          if (redPlayer.y < 50) redPlayer.y = 50;
         } else {
           redPlayer.x += (redPlayer.targetX - redPlayer.x) * 0.35;
           redPlayer.y += (redPlayer.targetY - redPlayer.y) * 0.35;
@@ -447,6 +484,7 @@
         if (puck.y - puck.radius < 0) {
           if (puck.x > goalLeft && puck.x < goalRight) {
             blueScore++;
+            blueScoreEl.textContent = blueScore;
             playSound("goal");
             triggerShake(10, 20);
             checkWinCondition();
@@ -461,6 +499,7 @@
         if (puck.y + puck.radius > canvas.height) {
           if (puck.x > goalLeft && puck.x < goalRight) {
             redScore++;
+            redScoreEl.textContent = redScore;
             playSound("goal");
             triggerShake(10, 20);
             checkWinCondition();
@@ -506,7 +545,6 @@
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 링크 테두리 및 중앙선
         ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
         ctx.lineWidth = 4;
 
@@ -516,10 +554,9 @@
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.arc(canvas.width / 2, canvas.height / 2, 55, 0, Math.PI * 2);
+        ctx.arc(canvas.width / 2, canvas.height / 2, 50, 0, Math.PI * 2);
         ctx.stroke();
 
-        // 위쪽 골대 (RED 팀 골대)
         ctx.strokeStyle = "#ff3333";
         ctx.lineWidth = 6;
         ctx.beginPath();
@@ -527,44 +564,22 @@
         ctx.lineTo(canvas.width / 2 + 60, 0);
         ctx.stroke();
 
-        // 아래쪽 골대 (BLUE 팀 골대)
         ctx.strokeStyle = "#00ffcc";
         ctx.beginPath();
         ctx.moveTo(canvas.width / 2 - 60, canvas.height);
         ctx.lineTo(canvas.width / 2 + 60, canvas.height);
         ctx.stroke();
 
-        // [추가됨] 맵 내부 상단에 위치한 사각형 점수판 디자인
-        ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
-        ctx.fillRect(canvas.width / 2 - 95, 12, 190, 32);
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.2)";
-        ctx.lineWidth = 1;
-        ctx.strokeRect(canvas.width / 2 - 95, 12, 190, 32);
-
-        ctx.font = "bold 16px sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
-        ctx.fillStyle = "#ff3333";
-        ctx.fillText("RED", canvas.width / 2 - 60, 28);
-        ctx.fillStyle = "#ffffff";
-        ctx.fillText(`${redScore} : ${blueScore}`, canvas.width / 2, 28);
-        ctx.fillStyle = "#00ffcc";
-        ctx.fillText("BLUE", canvas.width / 2 + 60, 28);
-
-        // RED 패들 (상단)
         ctx.fillStyle = redPlayer.color;
         ctx.beginPath();
         ctx.arc(redPlayer.x, redPlayer.y, redPlayer.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // BLUE 패들 (하단)
         ctx.fillStyle = bluePlayer.color;
         ctx.beginPath();
         ctx.arc(bluePlayer.x, bluePlayer.y, bluePlayer.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // 노란색 퍽 (공)
         ctx.fillStyle = puck.color;
         ctx.shadowBlur = 15;
         ctx.shadowColor = puck.color;
