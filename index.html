@@ -21,13 +21,12 @@
         color: #fff;
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         align-items: center;
-        justify-content: center; /* 컴퓨터 중앙 정렬 */
+        justify-content: center;
         height: 100vh;
         height: 100dvh;
         overflow: hidden;
-        gap: 20px; /* 게임판과 우측 사이드바 사이 간격 */
       }
 
       /* 메인 화면 스타일 */
@@ -68,14 +67,22 @@
         transform: scale(0.95);
       }
 
-      /* 게임 플레이 화면 스타일 (중앙 배치) */
+      /* 게임 플레이 화면 전체 영역 */
       #gameScreen {
         display: none;
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        gap: 15px;
         position: relative;
+        max-width: 100%;
+        max-height: 90vh;
+        padding: 5px;
+      }
+
+      /* 맵과 요소들을 감싸는 컨테이너 */
+      #canvasContainer {
+        position: relative;
+        display: inline-block;
       }
 
       /* 캔버스 맵 스타일 */
@@ -84,35 +91,53 @@
         border: 3px solid #00ffcc;
         border-radius: 6px;
         box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
-        max-height: 85vh;
+        max-width: 100%;
+        max-height: 80vh;
         object-fit: contain;
+        display: block;
       }
 
-      /* 맵 오른쪽 옆에 세로로 배치될 사이드바 (점수판 + 메인화면/다시하기 버튼) */
-      #rightSidebar {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 15px;
-        background: rgba(0, 43, 54, 0.7);
-        border: 2px solid #00ffcc;
-        padding: 20px 15px;
-        border-radius: 12px;
-        box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+      /* 버튼과 점수판을 맵의 오른쪽 바깥쪽이 아니라 테두리 안쪽 오른쪽 끝에 완전히 밀착 */
+      .control-btn,
+      #verticalScoreboard {
+        position: absolute;
+        right: 6px; /* 캔버스 안쪽 우측 테두리에 딱 붙도록 수정 */
       }
 
-      .control-btn {
-        background: #222;
+      /* 점수판: 중앙 ㅡ선 정렬 */
+      #verticalScoreboard {
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.65rem;
+        font-weight: bold;
+        background: #112a33;
         color: #00ffcc;
         border: 1px solid #00ffcc;
-        padding: 10px 15px;
-        border-radius: 10px;
-        font-size: 0.85rem;
+        padding: 10px 4px;
+        border-radius: 8px;
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        letter-spacing: 2px;
+        box-shadow: 0 0 8px rgba(0, 255, 204, 0.2);
+        pointer-events: none;
+        z-index: 5;
+      }
+
+      /* 공통 세로 버튼 스타일 */
+      .control-btn {
+        background: #112a33;
+        color: #00ffcc;
+        border: 1px solid #00ffcc;
+        padding: 10px 4px;
+        border-radius: 8px;
+        font-size: 0.65rem;
         font-weight: bold;
         cursor: pointer;
-        width: 100px;
-        text-align: center;
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        letter-spacing: 2px;
+        box-shadow: 0 0 8px rgba(0, 255, 204, 0.2);
+        z-index: 6;
         transition: background 0.1s;
       }
       .control-btn:active,
@@ -121,23 +146,23 @@
         color: #111;
       }
 
-      #scoreboard {
-        font-size: 1.1rem;
-        font-weight: bold;
-        background: rgba(255, 255, 255, 0.1);
-        padding: 10px;
-        border-radius: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        width: 100px;
+      /* 메인화면 버튼: 위쪽 배치 (간격을 더 벌림) */
+      #btnMenu {
+        top: calc(50% - 190px);
+        transform: translateY(-50%);
+      }
+
+      /* 다시하기 버튼: 아래쪽 배치 (간격을 더 벌림) */
+      #btnRestart {
+        top: calc(50% + 190px);
+        transform: translateY(-50%);
       }
 
       #instructions {
-        margin-top: 4px;
-        font-size: 0.65rem;
+        position: absolute;
+        bottom: -20px;
+        width: 100%;
+        font-size: 0.6rem;
         color: #aaa;
         text-align: center;
       }
@@ -191,21 +216,23 @@
     </div>
 
     <div id="gameScreen">
-      <div>
+      <div id="canvasContainer">
         <canvas id="gameCanvas" width="400" height="600"></canvas>
-        <div id="instructions">하단: BLUE | 상단: RED (5점 선취 승리)</div>
-      </div>
 
-      <div id="rightSidebar">
-        <button class="control-btn" onclick="returnToMenu()">메인 화면</button>
-        <div id="scoreboard">
-          <span style="color: #ff3333">RED</span>
-          <span id="redScore">0</span>
-          <span style="font-size: 0.8rem; color: #888">VS</span>
-          <span id="blueScore">0</span>
-          <span style="color: #00ffcc">BLUE</span>
+        <button id="btnMenu" class="control-btn" onclick="returnToMenu()">
+          메인화면
+        </button>
+
+        <div id="verticalScoreboard">
+          <span style="color: #ff3333">RED</span> <span id="redScore">0</span> :
+          <span id="blueScore">0</span> <span style="color: #00ffcc">BLUE</span>
         </div>
-        <button class="control-btn" onclick="restartGame()">다시하기</button>
+
+        <button id="btnRestart" class="control-btn" onclick="restartGame()">
+          다시하기
+        </button>
+
+        <div id="instructions">하단: BLUE | 상단: RED (5점 선취 승리)</div>
       </div>
 
       <div id="gameOverScreen">
